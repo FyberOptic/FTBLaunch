@@ -20,7 +20,6 @@ import static com.google.common.net.HttpHeaders.CACHE_CONTROL;
 import static com.google.common.net.HttpHeaders.CONTENT_MD5;
 import static net.ftb.download.Locations.MODPACKS;
 import static net.ftb.download.Locations.PRIVATEPACKS;
-
 import net.ftb.data.ModPack;
 import net.ftb.data.Settings;
 import net.ftb.gui.LaunchFrame;
@@ -33,6 +32,8 @@ import net.ftb.util.ModPackUtil;
 import net.ftb.util.OSUtils;
 import net.ftb.util.TrackerUtils;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
@@ -313,8 +314,9 @@ public class ModManager extends JDialog {
         super(owner, model);
         setResizable(false);
         setTitle("Downloading...");
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        setBounds(100, 100, 313, 138);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setBounds(100, 100, 313, 165);
+        setLocationRelativeTo(null);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contentPane);
@@ -332,8 +334,26 @@ public class ModManager extends JDialog {
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setBounds(0, 42, 313, 14);
         contentPane.add(label);
+        
+        JButton cancelButton = new JButton();
+        cancelButton.setText("Cancel");
+        cancelButton.setBounds(50, 100, 200, 30);
+        final ModManager thisManager = this;
+        cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				thisManager.dispatchEvent(new WindowEvent(thisManager, WindowEvent.WINDOW_CLOSING));
+			}        
+        });
+        contentPane.add(cancelButton);
 
         addWindowListener(new WindowAdapter() {
+        	@Override
+        	public void windowClosing(WindowEvent e) {
+        		worker.cancel(true);
+        		super.windowClosing(e);
+        	}
+        	
             @Override
             public void windowOpened (WindowEvent arg0) {
                 worker = new ModManagerWorker() {

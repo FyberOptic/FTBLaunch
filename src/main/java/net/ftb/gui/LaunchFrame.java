@@ -764,7 +764,7 @@ public class LaunchFrame extends JFrame {
             } catch (InterruptedException ignored) {
             }
         }
-        if (ModManager.erroneous) {
+        if (ModManager.erroneous || ModManager.worker.isCancelled()) {
             return false;
         }
         try {
